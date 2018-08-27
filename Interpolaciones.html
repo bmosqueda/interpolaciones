@@ -1,0 +1,117 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Interpolaciones</title>
+    <link rel="stylesheet" href="bulma.min.css">
+  </head>
+  <body>
+    <div class="columns">
+      <div class="column is-6 is-offset-3">
+        <div class="field">
+          <label class="label">X0</label>
+          <div class="control">
+            <input class="input" type="number" placeholder="X0" id="txtX0">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">X1</label>
+          <div class="control">
+            <input class="input" type="number" placeholder="X1" id="txtX1">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">FX0</label>
+          <div class="control">
+            <input class="input" type="number" placeholder="FX0" id="txtFX0">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">FX1</label>
+          <div class="control">
+            <input class="input" type="number" placeholder="FX1" id="txtFX1">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Valor a interpolar ( X )</label>
+          <div class="control">
+            <input class="input" type="number" placeholder="X" id="txtX">
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+            <input class="button is-success" type="button" id="btnCalculate" value="Calcular">
+          </div>
+        </div>
+        <h1 id="lblResult" class="title is-5"></h1>
+        <div class="field">
+          <label class="label">Valor exacto (Para calcular el error relativo)</label>
+          <div class="control">
+            <input class="input" type="number" placeholder="X" id="txtExacto">
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+            <input class="button is-success" type="button" id="btnCalculateError" value="Calcular">
+          </div>
+        </div>
+        <h1 id="lblError" class="title is-5"></h1>
+      </div>
+    </div>
+  </body>
+  <script>
+    function get(id) {return document.getElementById(id);}
+    let result = 0;
+
+    function caculateInterpolation(x, fx0, fx1, x0, x1) {
+      for (var i = 0; i < arguments.length; i++) {
+        if(!isNaN(arguments[i])) 
+          arguments[i] = Number(arguments[i]);
+        else
+          throw 'Los parámetros deben ser númericos';
+      }
+      return fx0 + ((fx1 - fx0) / (x1 - x0)) * (x - x0);
+    }
+
+    function calculateRelativeError(exact, rounded) {
+      exact = Number(exact);
+      rounded = Number(rounded);
+
+      return Math.abs(exact - rounded) / Math.abs(exact) * 100;
+    }
+
+    function removeSpaces(text) {
+      let tempText = '';
+      for (var i = 0; i < text.length; i++)
+        tempText += text[i] === ' ' ? '' : text[i];
+
+      return tempText;
+    }
+
+    function evaluateExpression(value, funct) {
+      funct = removeSpaces(funct);
+
+      for (var i = 0; i < funct.length; i++) {
+          
+      }
+    }
+
+    get('btnCalculate').addEventListener('click', () => {
+      let x = get('txtX').value;
+      let x0 = get('txtX0').value;
+      let x1 = get('txtX1').value;
+      let fx0 = get('txtFX0').value;
+      let fx1 = get('txtFX1').value;
+
+      result = caculateInterpolation(x, fx0, fx1, x0, x1);
+      get('lblResult').textContent = 'Resultado: ' + result;
+    }); 
+
+    get('btnCalculateError').addEventListener('click', () => {
+      let exact = get('txtExacto').value;
+
+      get('lblError').textContent = 'Error relativo: ' + calculateRelativeError(exact, result) + '%';
+    });
+  </script>
+</html>
+
+
