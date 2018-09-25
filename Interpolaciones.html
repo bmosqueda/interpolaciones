@@ -2,115 +2,653 @@
   <head>
     <meta charset="utf-8">
     <title>Interpolaciones</title>
-    <link rel="stylesheet" href="bulma.min.css">
+    <link rel="stylesheet" href="public/css/bulma.min.css">
   </head>
   <body>
-    <div class="columns">
-      <div class="column is-6 is-offset-3">
-        <div class="field">
-          <label class="label">X0</label>
-          <div class="control">
-            <input class="input" type="number" placeholder="X0" id="txtX0">
+    <div>
+      <section class="hero is-info">
+         <div class="hero-body">
+            <div class="container has-text-centered">
+               <h1 class="title">
+                  Métodos numéricos - Interpolaciones
+               </h1>
+            </div>
+         </div>
+         <div class="hero-foot">
+            <nav class="tabs is-boxed is-fullwidth is-large">
+               <div class="container">
+                  <ul>
+                    <li class="tab is-active" onclick="openTab(event,'tabLineal')">
+                      <a>Lineal</a>
+                    </li>
+                    <li class="tab" onclick="openTab(event,'tabLagrange')">
+                      <a>Lagrange</a>
+                    </li>
+                    <li class="tab" onclick="openTab(event,'tabQuadratic')">
+                      <a>Cuadrática</a>
+                    </li>
+                  </ul>
+               </div>
+            </nav>
+         </div>
+      </section>
+      <div class="container section">
+        <!-- Interpolación lineal-->
+          <div id="tabLineal" class="content-tab" >
+            <div class="columns" style="margin-top: 2rem;">
+              <div class="column is-6 is-offset-3">
+                <div class="field">
+                  <label class="label">X0</label>
+                  <div class="control">
+                    <input class="input" type="number" placeholder="x0" v-model.numeric="operands.x0">
+                  </div>
+                  <p class="help is-danger" v-show="errors.x0 !== ''">
+                    {{errors.x0}}
+                  </p>
+                </div>
+                <div class="field">
+                  <label class="label">X1</label>
+                  <div class="control">
+                    <input class="input" v-model.numeric="operands.x1" type="number" placeholder="X1">
+                  </div>
+                  <p class="help is-danger" v-show="errors.x1 !== ''">
+                    {{errors.x1}}
+                  </p>
+                </div>
+                <div class="field">
+                  <label class="label">FX0</label>
+                  <div class="control">
+                    <input class="input" type="number" v-model.numeric="operands.fx0" placeholder="FX0">
+                  </div>
+                  <p class="help is-danger" v-show="errors.fx0 !== ''">
+                    {{errors.fx0}}
+                  </p>
+                </div>
+                <div class="field">
+                  <label class="label">FX1</label>
+                  <div class="control">
+                    <input class="input" type="number" v-model.numeric="operands.fx1" placeholder="FX1">
+                  </div>
+                  <p class="help is-danger" v-show="errors.fx1 !== ''">
+                    {{errors.fx1}}
+                  </p>
+                </div>
+                <div class="field">
+                  <label class="label">Valor a interpolar ( X )</label>
+                  <div class="control">
+                    <input class="input" type="number" v-model.numeric="operands.x" placeholder="X">
+                  </div>
+                  <p class="help is-danger" v-show="errors.x !== ''">
+                    {{errors.x}}
+                  </p>
+                </div>
+                <div class="field">
+                  <div class="control">
+                    <input class="button is-success" @click="calculateLineal" type="button" value="Calcular">
+                  </div>
+                </div>
+                <h1 class="title is-5" v-show="result !== false">Resultado: {{result}}</h1>
+                <hr>  
+                <div v-show="result !== false">
+                  <div class="field">
+                    <label class="label">Valor exacto (Para calcular el error relativo)</label>
+                    <div class="control">
+                      <input class="input" type="number" v-model="exactValue" placeholder="X">
+                    </div>
+                  </div>
+                  <div class="field">
+                    <div class="control">
+                      <input class="button is-success"  type="button" @click="calculateRelativeError" value="Calcular">
+                    </div>
+                  </div>
+                  <h1 class="title is-5" v-show="relativeError !== false">Error relativo: {{relativeError}} %</h1>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="field">
-          <label class="label">X1</label>
-          <div class="control">
-            <input class="input" type="number" placeholder="X1" id="txtX1">
+        <!-- Interpolación lineal END-->
+        
+        <!-- Interpolación de Lagrange -->
+          <div id="tabLagrange" class="content-tab" style="display:none">
+            <div class="columns" style="margin-top: 2rem;">
+              <div class="column is-6 is-offset-3" v-show="true">
+                <div class="field">
+                  <label class="label">X</label>
+                  <div class="control">
+                    <input class="input" type="number" v-model="X" placeholder="X">
+                  </div>
+                </div>
+                <hr>
+                <div class="field">
+                  <label class="label">N</label>
+                  <div class="control">
+                    <input class="input" type="number" v-model="N" placeholder="N">
+                  </div>
+                </div>
+                <p class="help is-danger" v-show="errors.N !== ''">
+                  {{errors.N}}
+                </p>
+                <div class="field">
+                  <div class="control">
+                    <input class="button is-success"  type="button" @click="setN" value="Establecer">
+                  </div>
+                </div>
+                <hr>
+                <div v-for="(l, index) in Xs" class="field">
+                  <label class="label">X{{index}}</label>
+                  <div class="control">
+                    <input class="input" type="number" v-model="Xs[index]">
+                  </div>
+                </div>
+                <hr>
+                <div v-for="(f, index) in F" class="field">
+                  <label class="label">F{{index}}</label>
+                  <div class="control">
+                    <input class="input" type="number" v-model="F[index]">
+                  </div>
+                </div>
+                <div class="field" v-show="L.length !== 0">
+                  <div class="control">
+                    <input class="button is-success" type="button" @click="calculateLagrance" value="Calcular Lagrance">
+                  </div>
+                </div>
+                <h1 class="title is-5" v-show="result !== false">Resultado: {{result}}</h1>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="field">
-          <label class="label">FX0</label>
-          <div class="control">
-            <input class="input" type="number" placeholder="FX0" id="txtFX0">
+        <!-- Interpolación de Lagrange FIN -->
+
+        <!-- Interpolación cuadrática -->  
+          <div id="tabQuadratic" class="content-tab" style="display:none">
+            <div class="columns" style="margin-top: 2rem;">
+              <div class="column is-6 is-offset-3">
+                <div class="field">
+                  <label class="label">X0</label>
+                  <div class="control">
+                    <input class="input" type="number" placeholder="x0" v-model.numeric="operands.x0">
+                  </div>
+                  <p class="help is-danger" v-show="errors.x0 !== ''">
+                    {{errors.x0}}
+                  </p>
+                </div>
+                <div class="field">
+                  <label class="label">X1</label>
+                  <div class="control">
+                    <input class="input" v-model.numeric="operands.x1" type="number" placeholder="X1">
+                  </div>
+                  <p class="help is-danger" v-show="errors.x1 !== ''">
+                    {{errors.x1}}
+                  </p>
+                </div>
+                <div class="field">
+                  <label class="label">X2</label>
+                  <div class="control">
+                    <input class="input" v-model.numeric="operands.x2" type="number" placeholder="X2">
+                  </div>
+                  <p class="help is-danger" v-show="errors.x2 !== ''">
+                    {{errors.x2}}
+                  </p>
+                </div>
+                <div class="field">
+                  <label class="label">FX0</label>
+                  <div class="control">
+                    <input class="input" type="number" v-model.numeric="operands.fx0" placeholder="FX0">
+                  </div>
+                  <p class="help is-danger" v-show="errors.fx0 !== ''">
+                    {{errors.fx0}}
+                  </p>
+                </div>
+                <div class="field">
+                  <label class="label">FX1</label>
+                  <div class="control">
+                    <input class="input" type="number" v-model.numeric="operands.fx1" placeholder="FX1">
+                  </div>
+                  <p class="help is-danger" v-show="errors.fx1 !== ''">
+                    {{errors.fx1}}
+                  </p>
+                </div>
+                <div class="field">
+                  <label class="label">FX2</label>
+                  <div class="control">
+                    <input class="input" type="number" v-model.numeric="operands.fx2" placeholder="FX2">
+                  </div>
+                  <p class="help is-danger" v-show="errors.fx2 !== ''">
+                    {{errors.fx2}}
+                  </p>
+                </div>
+                <div class="field">
+                  <label class="label">Valor a interpolar ( X )</label>
+                  <div class="control">
+                    <input class="input" type="number" v-model.numeric="operands.x" placeholder="X">
+                  </div>
+                  <p class="help is-danger" v-show="errors.x !== ''">
+                    {{errors.x}}
+                  </p>
+                </div>
+                <div class="field">
+                  <div class="control">
+                    <input class="button is-success" @click="calculateQuadratic" type="button" value="Calcular">
+                  </div>
+                </div>
+                <h1 class="title is-5" v-show="result !== false">Resultado: {{result}}</h1>
+                <hr>  
+                <div v-show="result !== false">
+                  <div class="field">
+                    <label class="label">Valor exacto (Para calcular el error relativo)</label>
+                    <div class="control">
+                      <input class="input" type="number" v-model="exactValue" placeholder="X">
+                    </div>
+                  </div>
+                  <div class="field">
+                    <div class="control">
+                      <input class="button is-success"  type="button" @click="calculateRelativeError" value="Calcular">
+                    </div>
+                  </div>
+                  <h1 class="title is-5" v-show="relativeError !== false">Error relativo: {{relativeError}} %</h1>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="field">
-          <label class="label">FX1</label>
-          <div class="control">
-            <input class="input" type="number" placeholder="FX1" id="txtFX1">
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Valor a interpolar ( X )</label>
-          <div class="control">
-            <input class="input" type="number" placeholder="X" id="txtX">
-          </div>
-        </div>
-        <div class="field">
-          <div class="control">
-            <input class="button is-success" type="button" id="btnCalculate" value="Calcular">
-          </div>
-        </div>
-        <h1 id="lblResult" class="title is-5"></h1>
-        <div class="field">
-          <label class="label">Valor exacto (Para calcular el error relativo)</label>
-          <div class="control">
-            <input class="input" type="number" placeholder="X" id="txtExacto">
-          </div>
-        </div>
-        <div class="field">
-          <div class="control">
-            <input class="button is-success" type="button" id="btnCalculateError" value="Calcular">
-          </div>
-        </div>
-        <h1 id="lblError" class="title is-5"></h1>
+        <!-- Interpolación cuadrática FIN -->
       </div>
     </div>
+    <footer class="footer has-background-info" style="padding-bottom: 4rem;">
+      <div class="content has-text-centered has-text-light">
+        <p>
+          <strong>Equipo 3</strong>
+        </p>
+        <span>Brandon Alejandro Mosqueda González</span><br>
+        <span>Daniel Salomón Marmolejo Contreras</span><br>
+        <span>Rebeca Noelia Flores Urtiz</span><br>
+        <span>Isaac Ramírez Martínez </span><br>
+      </div>
+    </footer>
   </body>
+  <script src="public/js/navbar-bulma.js"></script>
+  <script src="public/js/vue.min.js"></script>
   <script>
-    function get(id) {return document.getElementById(id);}
-    let result = 0;
+    const vmLineal = new Vue({
+      el: '#tabLineal',
+      data: {
+        operands: {
+          fx0: 0,
+          fx1: 0,
+          x1: 0,
+          x0: 0,
+          x: 0
+        },
+        errors: {
+          fx0: '',
+          fx1: '',
+          x1: '',
+          x0: '',
+          x: ''  
+        },
+        errorMessage: {
+          '<=': 'mayor que',
+          '>=': 'menor que',
+          '==': 'diferente que',
+          '!=': 'igual que',
+          '<': 'mayor que',
+          '>': 'menor qerrorsue'
+        },
+        result: false,
+        relativeError: false,
+        exactValue: 0
+      },
+      methods: {
+        calculateLineal() {
+          for(var prop in this.operands) {
+            if(this.operands[prop] !== '') {
+              if(!isNaN(this.operands[prop])) {
+                this.errors[prop] = '';
+                this.operands[prop] = Number(this.operands[prop]);
+              }
+              else {
+                this.errors[prop] = `${prop} debe ser un valor numérico`;
+                return;
+              }
+            }
+            else {
+              this.errors[prop] = `${prop} debe ser un valor numérico`;
+              return;
+            }
+          }
 
-    function caculateInterpolation(x, fx0, fx1, x0, x1) {
-      for (var i = 0; i < arguments.length; i++) {
-        if(!isNaN(arguments[i])) 
-          arguments[i] = Number(arguments[i]);
-        else
-          throw 'Los parámetros deben ser númericos';
+          if(
+              this.isWrongValue('<=', 'x1', 'x0') ||
+              this.isWrongValue('<=', 'x', 'x0') ||
+              this.isWrongValue('>=', 'x', 'x1') ||
+              this.isWrongValue('<=', 'fx1', 'fx0')  
+            )
+            return;
+
+          this.result = 
+          this.operands['fx0'] + ((this.operands['fx1'] - this.operands['fx0']) / (this.operands['x1'] - this.operands['x0'])) * (this.operands['x'] - this.operands['x0']);
+        },
+        isWrongValue(operator, prop, prop2) {
+          var thereIsError = false;
+          switch(operator) {
+            case '<=':
+              if(this.operands[prop] <= this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '>=':
+              if(this.operands[prop] >= this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '==':
+              if(this.operands[prop] == this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '!=':
+              if(this.operands[prop] != this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '>':
+              if(this.operands[prop] > this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '<':
+              if(this.operands[prop] < this.operands[prop2])
+                thereIsError = true;
+              break;
+            default:
+              break;
+          }
+
+          if(thereIsError)
+            this.errors[prop] = `${prop} debe ser ${this.errorMessage[operator]} ${prop2}`;
+          else
+            this.errors[prop] = '';
+
+          return thereIsError;
+        },
+        calculateRelativeError() {
+          this.exactValue = Number(this.exactValue);
+          this.result = Number(this.result);
+
+          this.relativeError = Math.abs(this.exactValue - this.result) / Math.abs(this.exactValue) * 100;
+        },
+        testValues() {
+          this.operands['x'] = 7;
+          this.operands['x0'] = 6;
+          this.operands['x1'] = 8;
+          this.operands['fx0'] = 1.7917;
+          this.operands['fx1'] = 2.0794;
+        }
       }
-      return fx0 + ((fx1 - fx0) / (x1 - x0)) * (x - x0);
-    }
-
-    function calculateRelativeError(exact, rounded) {
-      exact = Number(exact);
-      rounded = Number(rounded);
-
-      return Math.abs(exact - rounded) / Math.abs(exact) * 100;
-    }
-
-    function removeSpaces(text) {
-      let tempText = '';
-      for (var i = 0; i < text.length; i++)
-        tempText += text[i] === ' ' ? '' : text[i];
-
-      return tempText;
-    }
-
-    function evaluateExpression(value, funct) {
-      funct = removeSpaces(funct);
-
-      for (var i = 0; i < funct.length; i++) {
-          
-      }
-    }
-
-    get('btnCalculate').addEventListener('click', () => {
-      let x = get('txtX').value;
-      let x0 = get('txtX0').value;
-      let x1 = get('txtX1').value;
-      let fx0 = get('txtFX0').value;
-      let fx1 = get('txtFX1').value;
-
-      result = caculateInterpolation(x, fx0, fx1, x0, x1);
-      get('lblResult').textContent = 'Resultado: ' + result;
-    }); 
-
-    get('btnCalculateError').addEventListener('click', () => {
-      let exact = get('txtExacto').value;
-
-      get('lblError').textContent = 'Error relativo: ' + calculateRelativeError(exact, result) + '%';
     });
+
+    const vmQuadratic = new Vue({
+      el: '#tabQuadratic',
+      data: {
+        operands: {
+          fx0: 0,
+          fx1: 0,
+          fx2: 0,
+          x2: 0,
+          x1: 0,
+          x0: 0,
+          x: 0
+        },
+        errors: {
+          fx0: '',
+          fx1: '',
+          fx2: '',
+          x2: '',
+          x1: '',
+          x0: '',
+          x: ''  
+        },
+        b: [0, 0, 0],
+        errorMessage: {
+          '<=': 'mayor que',
+          '>=': 'menor que',
+          '==': 'diferente que',
+          '!=': 'igual que',
+          '<': 'mayor que',
+          '>': 'menor qerrorsue'
+        },
+        result: false,
+        relativeError: false,
+        exactValue: 0
+      },
+      methods: {
+        calculateQuadratic() {
+          for(var prop in this.operands) {
+            if(this.operands[prop] !== '') {
+              if(!isNaN(this.operands[prop])) {
+                this.errors[prop] = '';
+                this.operands[prop] = Number(this.operands[prop]);
+              }
+              else {
+                this.errors[prop] = `${prop} debe ser un valor numérico`;
+                return;
+              }
+            }
+            else {
+              this.errors[prop] = `${prop} debe ser un valor numérico`;
+              return;
+            }
+          }
+
+          if(
+              this.isWrongValue('<=', 'x1', 'x0') ||
+              this.isWrongValue('<=', 'x2', 'x1') ||
+              this.isWrongValue('<=', 'x', 'x0') ||
+              this.isWrongValue('>=', 'x', 'x2')
+            )
+            return;
+
+          this.b[0] = this.operands['fx0'];
+          this.b[1] = (this.operands['fx1'] - this.operands['fx0']) / (this.operands['x1'] - this.operands['x0']);
+          this.b[2] = (((this.operands['fx2'] - this.operands['fx1']) / (this.operands['x2'] - this.operands['x1'])) - this.b[1]) / (this.operands['x2'] - this.operands['x0']);
+
+          this.result = this.b[0] + this.b[1] * (this.operands['x'] - this.operands['x0']) + this.b[2] * (this.operands['x'] - this.operands['x0']) * (this.operands['x'] - this.operands['x1']);
+        },
+        isWrongValue(operator, prop, prop2) {
+          var thereIsError = false;
+          switch(operator) {
+            case '<=':
+              if(this.operands[prop] <= this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '>=':
+              if(this.operands[prop] >= this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '==':
+              if(this.operands[prop] == this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '!=':
+              if(this.operands[prop] != this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '>':
+              if(this.operands[prop] > this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '<':
+              if(this.operands[prop] < this.operands[prop2])
+                thereIsError = true;
+              break;
+            default:
+              break;
+          }
+
+          if(thereIsError)
+            this.errors[prop] = `${prop} debe ser ${this.errorMessage[operator]} ${prop2}`;
+          else
+            this.errors[prop] = '';
+
+          return thereIsError;
+        },
+        calculateRelativeError() {
+          this.exactValue = Number(this.exactValue);
+          this.result = Number(this.result);
+
+          this.relativeError = Math.abs(this.exactValue - this.result) / Math.abs(this.exactValue) * 100;
+        },
+        testValues() {
+          this.operands['x'] = 80;
+          this.operands['x0'] = 56.5;
+          this.operands['x1'] = 113;
+          this.operands['x2'] = 181;
+          this.operands['fx0'] = 1;
+          this.operands['fx1'] = 5;
+          this.operands['fx2'] = 20;
+        }
+      }
+    });
+
+    const vmLagrange = new Vue({
+      el: '#tabLagrange',
+      data: {
+        Xs: [],
+        L: [],
+        F: [],
+        N: 0,
+        result: false,
+        X: 0,
+        errors: {
+          N: ''
+        }
+      },
+      methods: {
+        setN() {
+          if(this.N < 1 || this.N > 6) {
+            this.errors.N = 'El valor de N debe estar entre 1 y 6';
+            return;
+          }
+          this.errors.N = '';
+
+          this.result = false;
+
+          this.L = [];
+          this.Xs = [];
+          this.F = [];
+          for (var i = 0; i <= this.N; i++) {
+            this.Xs.push(0);
+            this.F.push(0);
+            this.L.push(0);
+          }
+        },
+        calculateL(i) {
+          let L = 1;
+          console.log('**********************************');
+
+          for (var j = 0; j <= this.N; j++) {
+            if(i != j) {
+              console.log(`(${this.X} - ${this.Xs[j]}) / (${this.Xs[i]} - ${this.Xs[j]})`);
+              L *= (this.X - this.Xs[j]) / (this.Xs[i] - this.Xs[j]);
+            }
+          }
+
+          return L;
+        },
+        calculateLagrance() {
+          this.result = 0;
+          for(var i = 0; i <= this.N; i++) {
+            this.L[i] = 0;
+            this.L[i] = this.calculateL(i);
+            // console.log('this.L['+i+']: ', this.L[i]);
+            console.log('this.F['+i+']: ', this.F[i] * this.L[i]);
+            this.result += this.F[i] * this.L[i];
+          }
+        },
+        isWrongValue(operator, prop, prop2) {
+          var thereIsError = false;
+          switch(operator) {
+            case '<=':
+              if(this.operands[prop] <= this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '>=':
+              if(this.operands[prop] >= this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '==':
+              if(this.operands[prop] == this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '!=':
+              if(this.operands[prop] != this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '>':
+              if(this.operands[prop] > this.operands[prop2])
+                thereIsError = true;
+              break;
+            case '<':
+              if(this.operands[prop] < this.operands[prop2])
+                thereIsError = true;
+              break;
+            default:
+              break;
+          }
+
+          if(thereIsError)
+            this.errors[prop] = `${prop} debe ser ${this.errorMessage[operator]} ${prop2}`;
+          else
+            this.errors[prop] = '';
+
+          return thereIsError;
+        },
+        testValues() {
+          this.N = 2;
+          this.X = 160;
+          let x = [113, 181, 214.5];
+          let f = [5, 20, 40];
+
+          this.Xs = [];
+          this.F = [];
+          this.L = [];
+
+          for(var i = 0; i <= this.N; i++) {
+            this.Xs.push(x[i]);
+            this.F.push(f[i]);
+            this.L.push(0);
+          }
+
+          // console.log('L0: ', ((160 - 181)/(113-181))*((160-214.5)/(113-214.5)));
+          // console.log('L0: ', '((160 - 181)/(113-181))*((160-214.5)/(113-214.5))');
+          console.log('F0: ', ((160 - 181)/(113-181))*((160-214.5)/(113-214.5)) * 5);
+          // console.log('L1: ', ((160-113)/(181-113))*((160-214.5)/(181-214.5)));
+          // console.log('L1: ', '((160-113)/(181-113))*((160-214.5)/(181-214.5))');
+          console.log('F1: ', ((160-113)/(181-113))*((160-214.5)/(181-214.5)) * 20);
+          // console.log('L2: ', ((160-113)/(214.5-113))*((160-181)/(214.5-181)));
+          // console.log('L2: ', '((160-113)/(214.5-113))*((160-181)/(214.5-181))');
+          console.log('F2: ', ((160-113)/(214.5-113))*((160-181)/(214.5-181)) * 40);
+        },
+        testValues1() {
+          this.N = 1;
+          this.X = 2;
+          let x = [4, 6];
+          let f = [Math.log(4), Math.log(6)];
+
+          this.Xs = [];
+          this.F = [];
+          this.L = [];
+
+          for(var i = 0; i <= this.N; i++) {
+            this.Xs.push(x[i]);
+            this.F.push(f[i]);
+            this.L.push(0);
+          }
+
+          console.log('L0: ', (2-6)/(4-6));
+          console.log('F0: ', (2-6)/(4-6) * Math.log(4));
+
+          console.log('L0: ', (2-4)/(6-4));
+          console.log('F0: ', (2-4)/(6-4) * Math.log(6));
+        }
+      }
+    });
+
+    // For tabs
+    function openTab(evt, tabName) {var i, x, tablinks; x = document.getElementsByClassName("content-tab"); for (i = 0; i < x.length; i++) {x[i].style.display = "none"; } tablinks = document.getElementsByClassName("tab"); for (i = 0; i < x.length; i++) {tablinks[i].className = tablinks[i].className.replace(" is-active", ""); } document.getElementById(tabName).style.display = "block"; evt.currentTarget.className += " is-active";}
   </script>
 </html>
 
